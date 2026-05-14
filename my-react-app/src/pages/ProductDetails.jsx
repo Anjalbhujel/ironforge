@@ -1,0 +1,263 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "../styles/global.css";
+
+const CATEGORY_IMAGES = {
+  "Supplements": [
+    "https://images.unsplash.com/photo-1542435503-956c469947f6?w=600&q=80",
+    "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600&q=80",
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
+    "https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?w=600&q=80",
+  ],
+  "Accessories": [
+    "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&q=80",
+    "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80",
+    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
+    "https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?w=600&q=80",
+  ],
+  "Gym Gears": [
+    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
+    "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=600&q=80",
+    "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80",
+    "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&q=80",
+  ],
+  "Cardio Equipment": [
+    "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=600&q=80",
+    "https://images.unsplash.com/photo-1520877880798-5ee004e3f11e?w=600&q=80",
+    "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=600&q=80",
+    "https://images.unsplash.com/photo-1544033527-b192daee1f5b?w=600&q=80",
+  ],
+};
+
+function getImage(product) {
+  if (product.image_url) return product.image_url;
+  const imgs = CATEGORY_IMAGES[product.category_name] || CATEGORY_IMAGES["Gym Gears"];
+  return imgs[product.id % imgs.length];
+}
+
+function ProductDetail({ addToCart, products }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState("description");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/products/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log(err);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <div className="pd-loading">Loading...</div>;
+  if (!product) return <div className="pd-loading">Product not found.</div>;
+
+  const isLowStock = product.stock > 0 && product.stock <= 5;
+  const isOutOfStock = product.stock === 0;
+
+  const related = products
+    .filter(p => p.category_name === product.category_name && p.id !== product.id)
+    .slice(0, 3);
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+    alert(`${quantity} x ${product.name} added to cart!`);
+  };
+
+  return (
+    <div className="pd-page">
+
+      <div className="pd-main">
+
+        <div className="pd-image-section">
+          <div className="pd-badges">
+            <span className="pd-badge-featured">FEATURED</span>
+            <span className="pd-badge-sale">SALE</span>
+          </div>
+          <img
+            src={getImage(product)}
+            alt={product.name}
+            className="pd-image"
+          />
+        </div>
+
+        <div className="pd-info">
+
+          <p className="pd-category">{product.category_name}</p>
+
+          <h1 className="pd-name">{product.name}</h1>
+
+          <div className="pd-stars">
+            <span className="pd-star-icons">★★★★☆</span>
+            <span className="pd-star-score">4.8</span>
+            <span className="pd-star-count">(reviews)</span>
+          </div>
+
+          <div className="pd-price-row">
+            <span className="pd-price">Rs.{Number(product.price).toLocaleString()}</span>
+            <span className="pd-price-old">Rs.{(Number(product.price) * 1.2).toLocaleString()}</span>
+            <span className="pd-save">Save Rs.{(Number(product.price) * 0.2).toLocaleString()}</span>
+          </div>
+
+          <p className="pd-desc">{product.description}</p>
+
+          <div className="pd-stock">
+            {isOutOfStock ? (
+              <span className="stock-out">● Out of Stock</span>
+            ) : isLowStock ? (
+              <span className="stock-low">● Only {product.stock} left!</span>
+            ) : (
+              <span className="stock-in">● In Stock ({product.stock} available)</span>
+            )}
+          </div>
+
+          <div className="pd-quantity-row">
+            <span className="pd-qty-label">Quantity:</span>
+            <div className="pd-qty-controls">
+              <button
+                className="pd-qty-btn"
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+              >−</button>
+              <span className="pd-qty-num">{quantity}</span>
+              <button
+                className="pd-qty-btn"
+                onClick={() => setQuantity(q => q + 1)}
+              >+</button>
+            </div>
+            <span className="pd-qty-total">
+              = Rs.{(Number(product.price) * quantity).toLocaleString()}
+            </span>
+          </div>
+
+          <div className="pd-buttons">
+            <button
+              className="pd-add-btn"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+            >
+              🛒 Add to Cart
+            </button>
+            <button
+              className="pd-buy-btn"
+              disabled={isOutOfStock}
+            >
+              ⚡ Buy Now
+            </button>
+          </div>
+
+          <div className="pd-trust">
+            <div className="pd-trust-item">
+              <span className="pd-trust-icon">🚚</span>
+              <span className="pd-trust-text">Free Shipping<br />&gt;Rs.5000</span>
+            </div>
+            <div className="pd-trust-item">
+              <span className="pd-trust-icon">✅</span>
+              <span className="pd-trust-text">100%<br />Authentic</span>
+            </div>
+            <div className="pd-trust-item">
+              <span className="pd-trust-icon">📦</span>
+              <span className="pd-trust-text">30-Day<br />Returns</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="pd-tabs-section">
+        <div className="pd-tabs">
+          <button
+            className={`pd-tab ${activeTab === "description" ? "active" : ""}`}
+            onClick={() => setActiveTab("description")}
+          >DESCRIPTION</button>
+          <button
+            className={`pd-tab ${activeTab === "reviews" ? "active" : ""}`}
+            onClick={() => setActiveTab("reviews")}
+          >REVIEWS</button>
+        </div>
+
+        {activeTab === "description" && (
+          <div className="pd-tab-content">
+            <h3>About this product</h3>
+            <p>{product.description}</p>
+            <p>This premium {product.category_name} is designed for serious athletes and fitness enthusiasts. Made with high-quality materials, backed by our 30-day satisfaction guarantee, and shipped directly from our Kathmandu warehouse.</p>
+
+            <div className="pd-features">
+              <div className="pd-feature">
+                <span className="pd-feature-icon">🏆</span>
+                <div>
+                  <p className="pd-feature-title">Quality Guaranteed</p>
+                  <p className="pd-feature-desc">Premium grade materials</p>
+                </div>
+              </div>
+              <div className="pd-feature">
+                <span className="pd-feature-icon">🚚</span>
+                <div>
+                  <p className="pd-feature-title">Fast Delivery</p>
+                  <p className="pd-feature-desc">1-3 days across Nepal</p>
+                </div>
+              </div>
+              <div className="pd-feature">
+                <span className="pd-feature-icon">🎧</span>
+                <div>
+                  <p className="pd-feature-title">Expert Support</p>
+                  <p className="pd-feature-desc">Call us anytime</p>
+                </div>
+              </div>
+              <div className="pd-feature">
+                <span className="pd-feature-icon">📦</span>
+                <div>
+                  <p className="pd-feature-title">Easy Returns</p>
+                  <p className="pd-feature-desc">30 days hassle-free</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "reviews" && (
+          <div className="pd-tab-content">
+            <p style={{ color: "#888" }}>No reviews yet. Be the first to review this product!</p>
+          </div>
+        )}
+      </div>
+
+      {related.length > 0 && (
+        <div className="pd-related">
+          <h2 className="pd-related-title">
+            RELATED <span className="orange">PRODUCTS</span>
+          </h2>
+          <div className="pd-related-grid">
+            {related.map(p => (
+              <div
+                key={p.id}
+                className="pd-related-card"
+                onClick={() => navigate(`/products/${p.id}`)}
+              >
+                <div className="pd-related-img">
+                  <img src={getImage(p)} alt={p.name} />
+                </div>
+                <div className="pd-related-info">
+                  <p className="pd-related-category">{p.category_name}</p>
+                  <p className="pd-related-name">{p.name}</p>
+                  <p className="pd-related-price">Rs.{Number(p.price).toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+export default ProductDetail;

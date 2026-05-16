@@ -1,11 +1,14 @@
 import "../styles/global.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+import { FaBolt } from "react-icons/fa";
 
 function Navbar({ cartCount }) {
 
 const user = JSON.parse(localStorage.getItem("user"));
 const navigate = useNavigate();
+const location = useLocation();
 
 const [scrolled, setScrolled] = useState(false);
 
@@ -30,11 +33,16 @@ const handleLogout = () => {
   navigate("/");
 };
 
+  const isHomePage = location.pathname === "/";
+  const isTransparent = isHomePage && !scrolled;
+
 return (
-    <nav className={`navbar ${scrolled ? "navbar-scrolled" : "navbar-top"}`}>
+     <nav className={`navbar ${isTransparent ? "navbar-top" : "navbar-scrolled"}`}>
         
         <Link to="/" className="nav-logo">
-          <div className="nav-logo-icon">⚡</div>
+          <div className="nav-logo-icon">
+            <FaBolt size={16} color="white" />
+          </div>
           <span className="nav-logo-text">
             <span style={{ color: "white" }}>Iron</span>Forge
             </span>
@@ -50,11 +58,10 @@ return (
 
         <div className="nav-right">
           <button className="nav-icon-btn">
-            🔍
+          <FiSearch size={20} />  
           </button>
-
            <Link to="/cart" className="nav-icon-btn cart-icon">
-          🛒
+          <FiShoppingCart size={20} /> 
           {cartCount > 0 && (
             <span className="cart-badge">{cartCount}</span>
           )}
@@ -62,14 +69,14 @@ return (
         
           {user ? (
             <div className="nav-user-area">
-            <span className="nav-username">👤 {user.name}</span>
+            <span className="nav-username"><FiUser size={14}/> {user.name}</span>
             <button className="nav-signout-btn" onClick={handleLogout}>
               Sign Out
             </button>
             </div>
             ) : (
             <Link to="/login" className="nav-signin-btn">
-            👤 Sign In
+            <FiUser size={14}/> Sign In
             </Link>
           )}
         </div>

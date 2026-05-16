@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { FaDumbbell, FaCapsules, FaTshirt, FaHeartbeat } from "react-icons/fa";
 
 const categoroies = [
      {
@@ -7,7 +8,7 @@ const categoroies = [
     label: "GYM GEARS",
     count: "24 Products",
     color: "rgba(180, 60, 0, 0.6)",
-    icon: "🏋️",
+    icon: <FaDumbbell size={20} color="white"/>,
     image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
     link: "/products?category=gym-gears"
   },
@@ -16,7 +17,7 @@ const categoroies = [
     label: "SUPPLEMENTS",
     count: "36 Products",
     color: "rgba(0, 80, 60, 0.6)",
-    icon: "💊",
+    icon: <FaCapsules size={20} color="white"/>,
     image: "https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=600&q=80",
     link: "/products?category=supplements"
   },
@@ -25,7 +26,7 @@ const categoroies = [
     label: "ACCESSORIES",
     count: "18 Products",
     color: "rgba(150, 80, 0, 0.6)",
-    icon: "🎽",
+    icon: <FaTshirt size={20} color="white"/>,
     image: "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&q=80",
     link: "/products?category=accessories"
   },
@@ -34,7 +35,7 @@ const categoroies = [
     label: "CARDIO EQUIPMENT",
     count: "12 Products",
     color: "rgba(180, 30, 30, 0.6)",
-    icon: "❤️",
+    icon: <FaHeartbeat size={20} color="white"/>,
     image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=600&q=80",
     link: "/products?category=cardio"
   }

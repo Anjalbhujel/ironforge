@@ -1,4 +1,5 @@
 import "../styles/global.css";
+import { MdVerified } from "react-icons/md";
 
 const reviews = [
   {
@@ -97,7 +98,7 @@ function Reviews() {
                 <p className="review-date">{review.date}</p>
               </div>
               <div className="review-verified">
-                ✅ Verified
+                <MdVerified size={14} color="#2e7d32" /> Verified
               </div>
             </div>
 

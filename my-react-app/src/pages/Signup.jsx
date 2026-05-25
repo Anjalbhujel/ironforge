@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { FaEnvelope, FaUserPlus, FaLock, FaUser } from "react-icons/fa";
 
 function Signup() {
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -57,7 +58,7 @@ function Signup() {
       <div className="auth-card">
 
         <div className="auth-logo-wrap">
-          <div className="auth-logo-box">👤</div>
+          <div className="auth-logo-box"><FaUserPlus size={28} color="white" /></div>
         </div>
 
         <h2 className="auth-title">Create Account</h2>
@@ -68,11 +69,11 @@ function Signup() {
           <div className="auth-field">
             <label>Full Name</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">👤</span>
+              <span className="auth-input-icon"><FaUser size={14} color="#aaa" /></span>
               <input
                 type="text"
                 name="name"
-                placeholder="John Doe"
+                placeholder="Full Name"
                 value={form.name}
                 onChange={handleChange}
               />
@@ -82,11 +83,11 @@ function Signup() {
           <div className="auth-field">
             <label>Email</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">✉️</span>
+              <span className="auth-input-icon"><FaEnvelope size={14} color="#aaa" /></span>
               <input
                 type="email"
                 name="email"
-                placeholder="you@example.com"
+                placeholder="Email"
                 value={form.email}
                 onChange={handleChange}
               />
@@ -96,11 +97,11 @@ function Signup() {
           <div className="auth-field">
             <label>Password</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">🔒</span>
+              <span className="auth-input-icon"><FaLock size={14} color="#aaa" /></span>
               <input
                 type="password"
                 name="password"
-                placeholder="••••••••"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
               />
@@ -110,11 +111,11 @@ function Signup() {
           <div className="auth-field">
             <label>Confirm Password</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">🔒</span>
+              <span className="auth-input-icon"><FaLock size={14} color="#aaa" /></span>
               <input
                 type="password"
                 name="confirmPassword"
-                placeholder="••••••••"
+                placeholder="Password"
                 value={form.confirmPassword}
                 onChange={handleChange}
               />

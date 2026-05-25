@@ -4,10 +4,9 @@ import "../styles/global.css";
 
 const CATEGORY_IMAGES = {
   "Supplements": [
-  "https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=400&q=80",
-  "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&q=80",
-  "https://images.unsplash.com/photo-1612544448445-b8232cff3b6c?w=400&q=80",
-  "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=400&q=80",
+  "https://images.unsplash.com/photo-1680265158261-5fd6ba5d9959?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1693996045435-af7c48b9cafb?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1709976142402-0ce49c22dbfc?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   ],
   "Accessories": [
     "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400&q=80",

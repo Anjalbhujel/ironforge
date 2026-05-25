@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { FaTruck, FaShieldAlt, FaBox, FaHeadset, FaTrophy, FaUndo, FaShoppingCart} from "react-icons/fa";
 import "../styles/global.css";
 
 const CATEGORY_IMAGES = {
-  "Supplements": [
+  Supplements: [
     "https://images.unsplash.com/photo-1542435503-956c469947f6?w=600&q=80",
     "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600&q=80",
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
     "https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?w=600&q=80",
   ],
-  "Accessories": [
+  Accessories: [
     "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&q=80",
     "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80",
     "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
@@ -31,7 +32,8 @@ const CATEGORY_IMAGES = {
 
 function getImage(product) {
   if (product.image_url) return product.image_url;
-  const imgs = CATEGORY_IMAGES[product.category_name] || CATEGORY_IMAGES["Gym Gears"];
+  const imgs =
+    CATEGORY_IMAGES[product.category_name] || CATEGORY_IMAGES["Gym Gears"];
   return imgs[product.id % imgs.length];
 }
 
@@ -45,12 +47,12 @@ function ProductDetail({ addToCart, products }) {
 
   useEffect(() => {
     fetch(`http://localhost:5000/products/${id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setProduct(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         setLoading(false);
       });
@@ -63,7 +65,9 @@ function ProductDetail({ addToCart, products }) {
   const isOutOfStock = product.stock === 0;
 
   const related = products
-    .filter(p => p.category_name === product.category_name && p.id !== product.id)
+    .filter(
+      (p) => p.category_name === product.category_name && p.id !== product.id,
+    )
     .slice(0, 3);
 
   const handleAddToCart = () => {
@@ -75,9 +79,7 @@ function ProductDetail({ addToCart, products }) {
 
   return (
     <div className="pd-page">
-
       <div className="pd-main">
-
         <div className="pd-image-section">
           <div className="pd-badges">
             <span className="pd-badge-featured">FEATURED</span>
@@ -91,7 +93,6 @@ function ProductDetail({ addToCart, products }) {
         </div>
 
         <div className="pd-info">
-
           <p className="pd-category">{product.category_name}</p>
 
           <h1 className="pd-name">{product.name}</h1>
@@ -103,9 +104,15 @@ function ProductDetail({ addToCart, products }) {
           </div>
 
           <div className="pd-price-row">
-            <span className="pd-price">Rs.{Number(product.price).toLocaleString()}</span>
-            <span className="pd-price-old">Rs.{(Number(product.price) * 1.2).toLocaleString()}</span>
-            <span className="pd-save">Save Rs.{(Number(product.price) * 0.2).toLocaleString()}</span>
+            <span className="pd-price">
+              Rs.{Number(product.price).toLocaleString()}
+            </span>
+            <span className="pd-price-old">
+              Rs.{(Number(product.price) * 1.2).toLocaleString()}
+            </span>
+            <span className="pd-save">
+              Save Rs.{(Number(product.price) * 0.2).toLocaleString()}
+            </span>
           </div>
 
           <p className="pd-desc">{product.description}</p>
@@ -116,7 +123,9 @@ function ProductDetail({ addToCart, products }) {
             ) : isLowStock ? (
               <span className="stock-low">● Only {product.stock} left!</span>
             ) : (
-              <span className="stock-in">● In Stock ({product.stock} available)</span>
+              <span className="stock-in">
+                ● In Stock ({product.stock} available)
+              </span>
             )}
           </div>
 
@@ -125,13 +134,17 @@ function ProductDetail({ addToCart, products }) {
             <div className="pd-qty-controls">
               <button
                 className="pd-qty-btn"
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              >−</button>
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              >
+                −
+              </button>
               <span className="pd-qty-num">{quantity}</span>
               <button
                 className="pd-qty-btn"
-                onClick={() => setQuantity(q => q + 1)}
-              >+</button>
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                +
+              </button>
             </div>
             <span className="pd-qty-total">
               = Rs.{(Number(product.price) * quantity).toLocaleString()}
@@ -144,31 +157,39 @@ function ProductDetail({ addToCart, products }) {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
             >
-              🛒 Add to Cart
+              <FaShoppingCart size={16} /> Add to Cart
             </button>
-            <button
-              className="pd-buy-btn"
-              disabled={isOutOfStock}
-            >
+            <button className="pd-buy-btn" disabled={isOutOfStock}>
               ⚡ Buy Now
             </button>
           </div>
 
           <div className="pd-trust">
             <div className="pd-trust-item">
-              <span className="pd-trust-icon">🚚</span>
-              <span className="pd-trust-text">Free Shipping<br />&gt;Rs.5000</span>
+              <FaTruck size={24} color="#ff6b00" />
+              <span className="pd-trust-text">
+                Free Shipping
+                <br />
+                &gt;Rs.5000
+              </span>
             </div>
             <div className="pd-trust-item">
-              <span className="pd-trust-icon">✅</span>
-              <span className="pd-trust-text">100%<br />Authentic</span>
+              <FaShieldAlt size={24} color="#ff6b00" />
+              <span className="pd-trust-text">
+                100%
+                <br />
+                Authentic
+              </span>
             </div>
             <div className="pd-trust-item">
-              <span className="pd-trust-icon">📦</span>
-              <span className="pd-trust-text">30-Day<br />Returns</span>
+              <FaBox size={24} color="#ff6b00" />
+              <span className="pd-trust-text">
+                30-Day
+                <br />
+                Returns
+              </span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -177,43 +198,52 @@ function ProductDetail({ addToCart, products }) {
           <button
             className={`pd-tab ${activeTab === "description" ? "active" : ""}`}
             onClick={() => setActiveTab("description")}
-          >DESCRIPTION</button>
+          >
+            DESCRIPTION
+          </button>
           <button
             className={`pd-tab ${activeTab === "reviews" ? "active" : ""}`}
             onClick={() => setActiveTab("reviews")}
-          >REVIEWS</button>
+          >
+            REVIEWS
+          </button>
         </div>
 
         {activeTab === "description" && (
           <div className="pd-tab-content">
             <h3>About this product</h3>
             <p>{product.description}</p>
-            <p>This premium {product.category_name} is designed for serious athletes and fitness enthusiasts. Made with high-quality materials, backed by our 30-day satisfaction guarantee, and shipped directly from our Kathmandu warehouse.</p>
+            <p>
+              This premium {product.category_name} is designed for serious
+              athletes and fitness enthusiasts. Made with high-quality
+              materials, backed by our 30-day satisfaction guarantee, and
+              shipped directly from our Kathmandu warehouse.
+            </p>
 
             <div className="pd-features">
               <div className="pd-feature">
-                <span className="pd-feature-icon">🏆</span>
+                <FaTrophy size={24} color="#ff6b00" />
                 <div>
                   <p className="pd-feature-title">Quality Guaranteed</p>
                   <p className="pd-feature-desc">Premium grade materials</p>
                 </div>
               </div>
               <div className="pd-feature">
-                <span className="pd-feature-icon">🚚</span>
+                <FaTruck size={24} color="#ff6b00" />
                 <div>
                   <p className="pd-feature-title">Fast Delivery</p>
                   <p className="pd-feature-desc">1-3 days across Nepal</p>
                 </div>
               </div>
               <div className="pd-feature">
-                <span className="pd-feature-icon">🎧</span>
+                <FaHeadset size={24} color="#ff6b00" />
                 <div>
                   <p className="pd-feature-title">Expert Support</p>
                   <p className="pd-feature-desc">Call us anytime</p>
                 </div>
               </div>
               <div className="pd-feature">
-                <span className="pd-feature-icon">📦</span>
+                <FaUndo size={24} color="#ff6b00" />
                 <div>
                   <p className="pd-feature-title">Easy Returns</p>
                   <p className="pd-feature-desc">30 days hassle-free</p>
@@ -225,7 +255,9 @@ function ProductDetail({ addToCart, products }) {
 
         {activeTab === "reviews" && (
           <div className="pd-tab-content">
-            <p style={{ color: "#888" }}>No reviews yet. Be the first to review this product!</p>
+            <p style={{ color: "#888" }}>
+              No reviews yet. Be the first to review this product!
+            </p>
           </div>
         )}
       </div>
@@ -236,7 +268,7 @@ function ProductDetail({ addToCart, products }) {
             RELATED <span className="orange">PRODUCTS</span>
           </h2>
           <div className="pd-related-grid">
-            {related.map(p => (
+            {related.map((p) => (
               <div
                 key={p.id}
                 className="pd-related-card"
@@ -248,14 +280,15 @@ function ProductDetail({ addToCart, products }) {
                 <div className="pd-related-info">
                   <p className="pd-related-category">{p.category_name}</p>
                   <p className="pd-related-name">{p.name}</p>
-                  <p className="pd-related-price">Rs.{Number(p.price).toLocaleString()}</p>
+                  <p className="pd-related-price">
+                    Rs.{Number(p.price).toLocaleString()}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       )}
-
     </div>
   );
 }

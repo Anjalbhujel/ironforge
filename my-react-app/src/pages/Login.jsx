@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { FaBolt, FaEnvelope, FaLock, } from "react-icons/fa";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -47,7 +48,7 @@ function Login() {
       <div className="auth-card">
 
         <div className="auth-logo-wrap">
-          <div className="auth-logo-box">🔥</div>
+          <div className="auth-logo-box"><FaBolt size={28} color="white"/></div>
         </div>
 
         <h2 className="auth-title">Welcome Back</h2>
@@ -58,11 +59,11 @@ function Login() {
           <div className="auth-field">
             <label>Email</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">✉️</span>
+              <span className="auth-input-icon"><FaEnvelope size={14} color="#aaa" /></span>
               <input
                 type="email"
                 name="email"
-                placeholder="you@example.com"
+                placeholder="Email Address"
                 value={form.email}
                 onChange={handleChange}
               />
@@ -72,11 +73,11 @@ function Login() {
           <div className="auth-field">
             <label>Password</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon">🔒</span>
+              <span className="auth-input-icon"><FaLock size={14} color="#aaa" /></span>
               <input
                 type="password"
                 name="password"
-                placeholder="••••••••"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
               />

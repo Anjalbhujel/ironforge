@@ -1,13 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css";
 import { FiTrash2, FiArrowLeft, FiShoppingCart } from "react-icons/fi";
-import { CATEGORY_IMAGES } from "../utils/categoryImages";
-
-function getImage(product) {
-  if (product.image_url) return product.image_url;
-  const imgs = CATEGORY_IMAGES[product.category_name] || CATEGORY_IMAGES["Gym Gears"];
-  return imgs[product.id % imgs.length];
-}
+import { getImage } from "../utils/categoryImages";
 
 function Cart({ cart, increaseQty, decreaseQty, removeFromCart }) {
   const navigate = useNavigate();

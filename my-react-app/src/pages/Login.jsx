@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/global.css";
-import { FaBolt, FaEnvelope, FaLock, } from "react-icons/fa";
+import { FaBolt, FaEnvelope, FaLock } from "react-icons/fa";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -25,14 +25,17 @@ function Login() {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
       const data = await res.json();
       if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/");
-        window.location.reload();
+        if (data.user.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
       } else {
         setError(data.message || "Invalid credentials");
       }
@@ -42,24 +45,27 @@ function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div className="auth-page">
       <div className="auth-card">
-
         <div className="auth-logo-wrap">
-          <div className="auth-logo-box"><FaBolt size={28} color="white"/></div>
+          <div className="auth-logo-box">
+            <FaBolt size={28} color="white" />
+          </div>
         </div>
 
         <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">Sign in to continue your fitness journey</p>
+        <p className="auth-subtitle">
+          Sign in to continue your fitness journey
+        </p>
 
         <form onSubmit={handleSubmit}>
-
           <div className="auth-field">
             <label>Email</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon"><FaEnvelope size={14} color="#aaa" /></span>
+              <span className="auth-input-icon">
+                <FaEnvelope size={14} color="#aaa" />
+              </span>
               <input
                 type="email"
                 name="email"
@@ -73,7 +79,9 @@ function Login() {
           <div className="auth-field">
             <label>Password</label>
             <div className="auth-input-wrap">
-              <span className="auth-input-icon"><FaLock size={14} color="#aaa" /></span>
+              <span className="auth-input-icon">
+                <FaLock size={14} color="#aaa" />
+              </span>
               <input
                 type="password"
                 name="password"
@@ -89,7 +97,6 @@ function Login() {
           <button type="submit" className="auth-submit-btn" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
-
         </form>
 
         <p className="auth-switch">
@@ -99,7 +106,6 @@ function Login() {
         <div className="auth-back" onClick={() => navigate("/")}>
           ← Back to home
         </div>
-
       </div>
     </div>
   );

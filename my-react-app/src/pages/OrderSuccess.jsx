@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaShoppingBag, FaHome } from "react-icons/fa";
+import { FaBox, FaTruck, FaMobile, FaCheckCircle, FaShoppingBag, FaHome } from "react-icons/fa";
 import "../styles/global.css";
 
 function OrderSuccess() {
@@ -19,9 +19,9 @@ function OrderSuccess() {
         </p>
 
         <div className="success-info">
-          <p>📦 Your order is being processed</p>
-          <p>🚚 Estimated delivery: 1-3 business days</p>
-          <p>📱 You'll receive updates via phone</p>
+          <p><FaBox color="#f57f17"/> Your order is being processed</p>
+          <p><FaTruck color="#f57f17" /> Estimated delivery: 1-3 business days</p>
+          <p><FaMobile color="#f57f17" /> You'll receive updates via phone</p>
         </div>
 
         <div className="success-buttons">

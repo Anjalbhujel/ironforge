@@ -1,41 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css";
+import { getImage } from "../utils/categoryImages";
 
 const CATEGORIES = ["All", "Gym Gears", "Supplements", "Accessories", "Cardio Equipment"];
-const CATEGORY_IMAGES = {
-  "Supplements": [
-    "https://images.unsplash.com/photo-1680265158261-5fd6ba5d9959?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1693996045435-af7c48b9cafb?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1709976142402-0ce49c22dbfc?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    
-  ],
-  "Accessories": [
-    "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400&q=80",
-    "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&q=80",
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80",
-    "https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?w=400&q=80",
-  ],
-  "Gym Gears": [
-    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80",
-    "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=400&q=80",
-    "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80",
-    "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&q=80",
-  ],
-  "Cardio Equipment": [
-    "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&q=80",
-    "https://images.unsplash.com/photo-1520877880798-5ee004e3f11e?w=400&q=80",
-    "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80",
-    "https://images.unsplash.com/photo-1544033527-b192daee1f5b?w=400&q=80",
-  ],
-};
 
 const BADGES = ["FEATURED", "BESTSELLER", "NEW", "HOT", "RECOVERY", null];
-function getImage(product){
-    if(product.image_url) return product.image_url;
-    const imgs = CATEGORY_IMAGES[product.category_name] || CATEGORY_IMAGES["Gym Gears"];
-    return imgs[product.id % imgs.length];
-}
 
 function getBadge(product) {
     return BADGES[product.id % BADGES.length];

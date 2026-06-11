@@ -13,6 +13,7 @@ import {
   FaMapMarkerAlt,
   FaShoppingBag,
 } from "react-icons/fa";
+// import { getImage } from "../utils/categoryImages";
 
 const PROVINCES = [
   "Koshi Province",
@@ -50,38 +51,88 @@ function Checkout({ cart, clearCart }) {
   };
 
   const placeOrder = async () => {
-    const token = localStorage.getItem("token");
-    const orderData = {
-      shipping_address: `${shipping.address}, ${shipping.city}, ${shipping.province}`,
-      phone: shipping.phone,
-      payment_method: paymentMethod,
-      items: cart.map((item) => ({
-        product_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    };
+  const token = localStorage.getItem("token");
+  const orderData = {
+    shipping_address: `${shipping.address}, ${shipping.city}, ${shipping.province}`,
+    payment_method: paymentMethod,
+    items: cart.map(item => ({
+      product_id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+  };
 
-    try {
-      const res = await fetch("http://localhost:5000/api/orders", {
+  try {
+    // First create the order
+    const res = await fetch("http://localhost:5000/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(orderData)
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Order failed");
+      return;
+    }
+
+    const orderId = data.order_id;
+
+    // If eSewa payment — redirect to eSewa
+    if (paymentMethod === "eSewa") {
+      const esewaRes = await fetch("http://localhost:5000/api/esewa/initiate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({ amount: subtotal, order_id: orderId })
       });
-      const data = await res.json();
-      if (res.ok) {
-        clearCart();
-        navigate("/order-success");
-      } else {
-        alert(data.message || "Order failed");
-      }
-    } catch (err) {
-      alert("Something went wrong");
+      const esewaData = await esewaRes.json();
+
+      // Create and submit form to eSewa
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = esewaData.esewa_url;
+
+      const fields = {
+        amount: subtotal,
+        tax_amount: 0,
+        total_amount: subtotal,
+        transaction_uuid: esewaData.transaction_uuid,
+        product_code: esewaData.product_code,
+        product_service_charge: 0,
+        product_delivery_charge: 0,
+        success_url: esewaData.success_url,
+        failure_url: esewaData.failure_url,
+        signed_field_names: esewaData.signed_field_names,
+        signature: esewaData.signature,
+      };
+
+      Object.entries(fields).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+
+    } else {
+      // COD — go to success page directly
+      clearCart();
+      navigate("/order-success");
     }
-  };
+
+  } catch (err) {
+    alert("Something went wrong");
+  }
+};
 
   return (
     <div className="checkout-page">

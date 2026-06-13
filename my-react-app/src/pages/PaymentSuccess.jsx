@@ -9,26 +9,38 @@ function PaymentSuccess() {
   const [status, setStatus] = useState("verifying");
 
   useEffect(() => {
-    // eSewa sends back encoded data
-    const data = searchParams.get("data");
-    if (!data) {
-      navigate("/");
-      return;
-    }
+  const data = searchParams.get("data");
+  if (!data) { navigate("/"); return; }
 
-      try {
-        const decoded = JSON.parse(atob(data));
-        console.log("eSewa response:", decoded);
-        if (decoded.status === "COMPLETE") {
-          setStatus("success");
-          localStorage.removeItem("cart");
-        } else {
-          setStatus("failed");
-        }
-      } catch {
-        setStatus("failed");
+  try {
+    const decoded = JSON.parse(atob(data));
+    if (decoded.status === "COMPLETE") {
+      setStatus("success");
+
+      // Verify payment in database
+      const token = localStorage.getItem("token");
+      if (token && decoded.transaction_uuid) {
+        const orderId = decoded.transaction_uuid.split("-")[0];
+        fetch("http://localhost:5000/api/esewa/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            transaction_uuid: decoded.transaction_uuid,
+            order_id: orderId,
+            amount: decoded.total_amount
+          })
+        }).catch(console.log);
       }
-  }, []);
+    } else {
+      setStatus("failed");
+    }
+  } catch {
+    setStatus("failed");
+  }
+}, []);
 
   return (
     <div className="payment-result-page">

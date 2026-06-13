@@ -99,6 +99,7 @@ function Reviews() {
               </div>
               <div className="review-verified">
                 <MdVerified size={14} color="#2e7d32" /> Verified
+                  
               </div>
             </div>
 

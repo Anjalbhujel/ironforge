@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaTruck, FaShieldAlt, FaBox, FaHeadset, FaTrophy, FaUndo, FaShoppingCart} from "react-icons/fa";
-import "../styles/global.css";
+import {
+  FaTruck,
+  FaShieldAlt,
+  FaBox,
+  FaHeadset,
+  FaTrophy,
+  FaUndo,
+  FaShoppingCart,
+  FaBolt,
+} from "react-icons/fa";
 import { getImage } from "../utils/categoryImages";
+import "../styles/global.css";
 
 function ProductDetail({ addToCart, products }) {
   const { id } = useParams();
@@ -11,6 +20,23 @@ function ProductDetail({ addToCart, products }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [userRating, setUserRating] = useState(0);
+  const [userComment, setUserComment] = useState("");
+  const [reviewMsg, setReviewMsg] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [hoveredStar, setHoveredStar] = useState(0);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (id) {
+      fetch(`http://localhost:5000/api/reviews/${id}`)
+        .then((res) => res.json())
+        .then((data) => setReviews(Array.isArray(data) ? data : []))
+        .catch(console.log);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetch(`http://localhost:5000/products/${id}`)
@@ -42,6 +68,64 @@ function ProductDetail({ addToCart, products }) {
       addToCart(product);
     }
     alert(`${quantity} x ${product.name} added to cart!`);
+  };
+
+  const handleBuyNow = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    addToCart(product);
+    navigate("/checkout");
+  };
+
+  const submitReview = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (!userRating) {
+      setReviewMsg("Please select a rating");
+      return;
+    }
+    if (!userComment.trim()) {
+      setReviewMsg("Please write a comment");
+      return;
+    }
+
+    setReviewLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: id,
+          rating: userRating,
+          comment: userComment,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setReviewMsg("✅ Review submitted!");
+        setUserRating(0);
+        setUserComment("");
+        // Refresh reviews
+        const r = await fetch(`http://localhost:5000/api/reviews/${id}`);
+        const newReviews = await r.json();
+        setReviews(Array.isArray(newReviews) ? newReviews : []);
+      } else {
+        setReviewMsg(data.message || "Failed to submit review");
+      }
+    } catch {
+      setReviewMsg("Something went wrong");
+    } finally {
+      setReviewLoading(false);
+    }
   };
 
   return (
@@ -126,8 +210,12 @@ function ProductDetail({ addToCart, products }) {
             >
               <FaShoppingCart size={16} /> Add to Cart
             </button>
-            <button className="pd-buy-btn" disabled={isOutOfStock}>
-              ⚡ Buy Now
+            <button
+              className="pd-buy-btn"
+              disabled={isOutOfStock}
+              onClick={handleBuyNow}
+            >
+              <FaBolt size={16} /> Buy Now
             </button>
           </div>
 
@@ -222,9 +310,128 @@ function ProductDetail({ addToCart, products }) {
 
         {activeTab === "reviews" && (
           <div className="pd-tab-content">
-            <p style={{ color: "#888" }}>
-              No reviews yet. Be the first to review this product!
-            </p>
+            {/* Write a Review */}
+            {user ? (
+              <div className="review-form">
+                <h3 className="review-form-title">Write a Review</h3>
+
+                {/* Star Rating */}
+                <div className="review-form-stars">
+                  <p>Your Rating</p>
+                  <div className="star-selector">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className={`star-select ${star <= (hoveredStar || userRating) ? "filled" : ""}`}
+                        onClick={() => setUserRating(star)}
+                        onMouseEnter={() => setHoveredStar(star)}
+                        onMouseLeave={() => setHoveredStar(0)}
+                      >
+                        ★
+                      </span>
+                    ))}
+                    {userRating > 0 && (
+                      <span className="star-label">
+                        {
+                          [
+                            "",
+                            "Poor",
+                            "Fair",
+                            "Good",
+                            "Very Good",
+                            "Excellent",
+                          ][userRating]
+                        }
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Comment */}
+                <div className="review-form-field">
+                  <p>Your Review</p>
+                  <textarea
+                    className="review-textarea"
+                    placeholder="Share your experience with this product..."
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+
+                {reviewMsg && (
+                  <p
+                    className={`review-msg ${reviewMsg.includes("✅") ? "success" : "error"}`}
+                  >
+                    {reviewMsg}
+                  </p>
+                )}
+
+                <button
+                  className="review-submit-btn"
+                  onClick={submitReview}
+                  disabled={reviewLoading}
+                >
+                  {reviewLoading ? "Submitting..." : "Submit Review"}
+                </button>
+              </div>
+            ) : (
+              <div className="review-login-prompt">
+                <p>
+                  Please <span onClick={() => navigate("/login")}>login</span>{" "}
+                  to write a review.
+                </p>
+              </div>
+            )}
+
+            {/* Existing Reviews */}
+            <div className="reviews-list">
+              <h3 className="reviews-list-title">
+                Customer Reviews ({reviews.length})
+              </h3>
+
+              {reviews.length === 0 ? (
+                <p className="no-reviews">
+                  No reviews yet. Be the first to review!
+                </p>
+              ) : (
+                reviews.map((review) => (
+                  <div key={review.id} className="review-item-card">
+                    <div className="review-item-top">
+                      <div className="review-item-avatar">
+                        {review.user_name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="review-item-info">
+                        <span className="review-item-name">{review.user_name}</span>
+                        <span className="review-item-date">
+                          {new Date(review.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )}
+                        </span>
+                      </div>
+                      <div className="review-item-stars">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <span
+                            key={s}
+                            style={{
+                              color: s <= review.rating ? "#ff6b00" : "#dddddd",
+                            }}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="review-item-comment">{review.comment}</p>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

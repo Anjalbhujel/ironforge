@@ -50,6 +50,34 @@ app.post('/api/esewa/initiate', (req, res) => {
   });
 });
 
+app.post('/api/esewa/verify', (req, res) => {
+  const { transaction_uuid, order_id, amount } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  const jwt = require('jsonwebtoken');
+  let user;
+  try { user = jwt.verify(token, 'ironstore_secret_key'); }
+  catch { return res.status(401).json({ message: 'Unauthorized' }); }
+
+  // Update payment status to completed
+  db.query(
+    `UPDATE payments SET payment_status = 'completed', transaction_id = ? WHERE order_id = ?`,
+    [transaction_uuid, order_id],
+    (err) => {
+      if (err) return res.status(500).json({ message: 'Database error' });
+    }
+  );
+
+  db.query(
+    `UPDATE orders SET payment_status = 'Completed' WHERE id = ?`,
+    [order_id],
+    (err) => {
+      if (err) return res.status(500).json({ message: 'Database error' });
+      res.json({ message: 'Payment verified!' });
+    }
+  );
+});
+
 app.get('/products', (req, res) => {
   const sql = `
     SELECT p.*, c.name AS category_name 
@@ -79,6 +107,56 @@ app.get('/products/:id', (req, res) => {
   });
 });
 
+// GET /api/reviews/:product_id — get reviews for a product
+app.get('/api/reviews/:product_id', (req, res) => {
+  const sql = `
+    SELECT r.*, u.name as user_name
+    FROM reviews r
+    JOIN users u ON r.user_id = u.id
+    WHERE r.product_id = ?
+    ORDER BY r.created_at DESC
+  `;
+  db.query(sql, [req.params.product_id], (err, result) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    res.json(result);
+  });
+});
+
+// POST /api/reviews — add a review
+app.post('/api/reviews', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  const jwt = require('jsonwebtoken');
+  let user;
+  try { user = jwt.verify(token, 'ironstore_secret_key'); }
+  catch { return res.status(401).json({ message: 'Unauthorized' }); }
+
+  const { product_id, rating, comment } = req.body;
+  if (!product_id || !rating || !comment) {
+    return res.status(400).json({ message: 'All fields required' });
+  }
+
+  // Check if user already reviewed this product
+  db.query(
+    'SELECT id FROM reviews WHERE user_id = ? AND product_id = ?',
+    [user.id, product_id],
+    (err, existing) => {
+      if (err) return res.status(500).json({ message: 'Database error' });
+      if (existing.length > 0) {
+        return res.status(400).json({ message: 'You already reviewed this product' });
+      }
+
+      db.query(
+        'INSERT INTO reviews (user_id, product_id, rating, comment) VALUES (?, ?, ?, ?)',
+        [user.id, product_id, rating, comment],
+        (err2) => {
+          if (err2) return res.status(500).json({ message: 'Database error' });
+          res.json({ message: 'Review added!' });
+        }
+      );
+    }
+  );
+});
+  
 app.post('/api/orders', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Not logged in' });
@@ -130,6 +208,22 @@ app.post('/api/orders', (req, res) => {
         console.log(err2);
         return res.status(500).json({ message: 'Failed to save order items' });
       }
+
+      const paymentStatus = payment_method === 'COD' ? 'pending' : 'pending';
+      const paymentSql = `
+      INSERT INTO payments (order_id, user_id, transaction_id, amount, payment_method, payment_status, payment_date)
+      VALUES (?, ?, ?, ?, ?, ?, NOW())
+      `;
+      db.query(paymentSql, [
+        orderId,
+        user.id,
+        `TXN-${orderId}-${Date.now()}`,
+        total_amount,
+        payment_method,
+        paymentStatus
+      ], (err3) => {
+        if (err3) console.log('Payment record error:', err3);
+      });
 
       res.json({ message: 'Order placed successfully!', order_id: orderId });
     });
